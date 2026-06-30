@@ -1,0 +1,256 @@
+/* ============================================================================
+   GASA — Packages landing redesign (gasa-theme.css)
+   Host this file externally; the brace-free CMS loader injects it AFTER
+   main.min.css, so every :root override below wins by cascade order.
+   Targets the real classes shipped by the page (Juniper BEM hooks).
+   ============================================================================ */
+
+/* ---- OPTIONAL display font for headings (uncomment to enable) -------------- */
+/* @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap"); */
+
+/* ============================================================================
+   1. DESIGN TOKENS — refresh the palette/scale. We override the H/S/L *parts*
+      so the theme's calc()-derived hover/focus/border shades recompute too.
+   ============================================================================ */
+:root {
+  /* Brand red — kept as identity, deepened from neon (#d60000) to a richer crimson */
+  --primary-color-h: 354; --primary-color-s: 70%; --primary-color-l: 44%;
+
+  /* Warm gold accent — slightly softened */
+  --accent-color-h: 38;  --accent-color-s: 90%;  --accent-color-l: 55%;
+
+  /* Secondary / dark surfaces — neutral grey -> cool slate for a premium feel */
+  --secondary-color-h: 214; --secondary-color-s: 28%; --secondary-color-l: 18%;
+
+  /* Softer modern corners + more breathing room in type */
+  --border-radius-default: 8px;
+  --border-radius: 8px;
+  --font-size: 0.9375rem;            /* 14 -> 15px base */
+
+  /* Local design tokens used by the component rules below */
+  --gasa-surface: #ffffff;
+  --gasa-bg-soft: #f6f7f9;
+  --gasa-border: rgba(20, 30, 45, 0.10);
+  --gasa-ink: hsl(214 30% 16%);
+  --gasa-muted: hsl(214 12% 42%);
+  --gasa-shadow-sm: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+  --gasa-shadow-md: 0 6px 16px rgba(16, 24, 40, .10);
+  --gasa-shadow-lg: 0 18px 40px -12px rgba(16, 24, 40, .22);
+  --gasa-radius-card: 14px;
+  --gasa-ease: cubic-bezier(.2, .7, .2, 1);
+  --whatsapp: #25D366;
+}
+
+/* ============================================================================
+   2. BASE — typography + rhythm
+   ============================================================================ */
+body {
+  color: var(--gasa-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3, .title, .topdestinations__title__text, .benefits__title, .footer__title {
+  font-family: var(--font-family-secondary, "Work Sans"), var(--font-family);
+  letter-spacing: -0.01em;
+}
+.title, .topdestinations__title__text {
+  font-weight: 700;
+  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2rem);
+  line-height: 1.15;
+}
+::selection { background: hsla(var(--primary-color-h), var(--primary-color-s), var(--primary-color-l), .18); }
+
+/* ============================================================================
+   3. BUTTONS — make primary deterministic (two conflicting rules ship upstream),
+      add weight, transition + hover lift.
+   ============================================================================ */
+.btn {
+  font-weight: 600;
+  letter-spacing: .01em;
+  transition: transform .15s var(--gasa-ease),
+              box-shadow .2s var(--gasa-ease),
+              background-color .2s var(--gasa-ease),
+              border-color .2s var(--gasa-ease);
+}
+.btn-primary {
+  color: var(--primary-color-text);
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: var(--gasa-shadow-sm);
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: hsla(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 7%), 1);
+  border-color: hsla(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 7%), 1);
+  transform: translateY(-1px);
+  box-shadow: var(--gasa-shadow-md);
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-secondary:hover { transform: translateY(-1px); }
+
+/* The prominent search CTA */
+.searcher-button.btn-primary {
+  padding-left: 1.6rem; padding-right: 1.6rem;
+  font-size: 1rem;
+}
+
+/* ============================================================================
+   4. SEARCHER — float the search card on a real surface above the hero
+   ============================================================================ */
+.home-searcher.searcher--floating {
+  background: var(--gasa-surface);
+  border-radius: var(--gasa-radius-card);
+  box-shadow: var(--gasa-shadow-lg);
+  padding: 18px 18px 6px;
+  border: 1px solid var(--gasa-border);
+}
+.multi-searcher__tabs--container { margin-bottom: 6px; }
+.searcher-row.package-searcher-row--flex { gap: 10px; }
+
+/* Inputs inside the searcher */
+.home-searcher .form-control {
+  border-radius: var(--border-radius);
+  border: 1px solid var(--gasa-border);
+  transition: border-color .2s var(--gasa-ease), box-shadow .2s var(--gasa-ease);
+}
+.home-searcher .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px hsla(var(--primary-color-h), var(--primary-color-s), var(--primary-color-l), .15);
+  outline: none;
+}
+
+/* ============================================================================
+   5. OFFERS / PROMOTIONS ("Special travel offers for you")
+   ============================================================================ */
+.slick-promotions .sliding-offers__image-holder,
+.home-carousel .carousel-inner {
+  border-radius: var(--gasa-radius-card);
+  overflow: hidden;
+}
+.slide-promo-content {
+  border-radius: var(--gasa-radius-card);
+  overflow: hidden;
+  box-shadow: var(--gasa-shadow-sm);
+  transition: transform .25s var(--gasa-ease), box-shadow .25s var(--gasa-ease);
+  background: var(--gasa-surface);
+}
+.slide-promo-content:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--gasa-shadow-lg);
+}
+.sliding-offers__image-holder img { transition: transform .4s var(--gasa-ease); }
+.slide-promo-content:hover .sliding-offers__image-holder img { transform: scale(1.06); }
+
+.offer-title {
+  font-family: var(--font-family-secondary, "Work Sans");
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+.price-promo {
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+/* Carousel caption legibility */
+.home-carousel .carousel-caption {
+  background: linear-gradient(180deg, transparent, rgba(10, 16, 26, .72));
+  border-radius: 0 0 var(--gasa-radius-card) var(--gasa-radius-card);
+  padding-bottom: 22px;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, .35);
+}
+
+/* ============================================================================
+   6. BENEFITS — turn the four value props into soft cards with an icon chip
+   ============================================================================ */
+.benefits__childs { gap: 16px; }
+.benefits__childs__item {
+  background: var(--gasa-surface);
+  border: 1px solid var(--gasa-border);
+  border-radius: var(--gasa-radius-card);
+  padding: 22px 20px;
+  box-shadow: var(--gasa-shadow-sm);
+  transition: transform .2s var(--gasa-ease), box-shadow .2s var(--gasa-ease);
+}
+.benefits__childs__item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--gasa-shadow-md);
+}
+.benefits__childs__item__image {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: hsla(var(--primary-color-h), var(--primary-color-s), var(--primary-color-l), .10);
+  color: var(--primary-color);
+  margin-bottom: 12px;
+}
+.benefits__title { font-weight: 700; }
+
+/* ============================================================================
+   7. TOP DESTINATIONS ("Find the best… Hotels | Packages")
+   ============================================================================ */
+.topdestinations__content {
+  background: var(--gasa-bg-soft);
+  border-radius: var(--gasa-radius-card);
+  padding: 24px;
+}
+.topdestinations__content__title {
+  font-weight: 700;
+  padding-bottom: 10px;
+  border-bottom: 2px solid hsla(var(--primary-color-h), var(--primary-color-s), var(--primary-color-l), .25);
+  margin-bottom: 8px;
+}
+.topdestinations__content__row {
+  padding: 9px 6px;
+  border-radius: 8px;
+  transition: background-color .15s var(--gasa-ease), transform .15s var(--gasa-ease);
+}
+.topdestinations__content__row:hover {
+  background: var(--gasa-surface);
+  transform: translateX(2px);
+}
+/* the "from 892 €" price */
+.topdestinations__content__row [class*="price"],
+.topdestinations__description {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+/* ============================================================================
+   8. FOOTER — structure, dividers, link affordance, back-to-top, WhatsApp
+   ============================================================================ */
+.footer-content {
+  background: var(--secondary-color);
+  color: rgba(255, 255, 255, .82);
+}
+.footer__title {
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+.footer-content a, .footer__text a { color: rgba(255, 255, 255, .82); transition: color .15s var(--gasa-ease); }
+.footer-content a:hover, .footer__text a:hover { color: var(--accent-color); }
+.footer-linksandcontent { border-bottom: 1px solid rgba(255, 255, 255, .12); padding-bottom: 18px; }
+.footer-bottom { opacity: .8; font-size: .85em; }
+
+.footer-action__content.btn-go-top {
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 999px;
+  box-shadow: var(--gasa-shadow-md);
+  transition: transform .15s var(--gasa-ease), background-color .2s var(--gasa-ease);
+}
+.footer-action__content.btn-go-top:hover { transform: translateY(-2px); }
+
+/* Keep the footer WhatsApp button on-brand green regardless of theme */
+#aspnetForm footer .footer-linksandcontent .footer-col.col-md-4 button {
+  background-color: var(--whatsapp) !important;
+  border-color: var(--whatsapp) !important;
+  color: #fff !important;
+}
+
+/* ============================================================================
+   9. MISC POLISH
+   ============================================================================ */
+.navbar.navbar-default { box-shadow: var(--gasa-shadow-sm); }
+a { transition: color .15s var(--gasa-ease); }
+img { image-rendering: auto; }

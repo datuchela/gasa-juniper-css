@@ -3,8 +3,11 @@
 Custom styling for the **www.gasa.ge** Juniper Booking Engine site, served via GitHub Pages.
 
 ## Files
-- `gasa-theme.css` — redesign for the Packages landing page (token overrides + component polish on the page's real Juniper/BEM classes).
+- `gasa-theme.css` — full site-wide re-implementation of the GASA homepage design over the real Juniper/BEM markup (replaces the platform's default look, not a light polish).
+- `gasa-enhance.js` — DOM layer that removes/replaces platform sections and injects the design's own (functional widgets kept intact).
 - `index.html` — blank placeholder so the Pages root doesn't 404.
+
+See `CLAUDE.md` for the full brief, injection mechanism, platform facts, and preview.
 
 ## Hosting (GitHub Pages)
 1. Push this repo to GitHub.

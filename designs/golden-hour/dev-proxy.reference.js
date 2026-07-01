@@ -34,16 +34,39 @@ function css() {
   }
 }
 
+const ASSETS_DIR = path.join(__dirname, "..", "assets");
+const MIME = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml", ".webp": "image/webp", ".gif": "image/gif" };
+
 const server = http.createServer((creq, cres) => {
-  // Serve the local enhancement script directly (re-read each request), so the
-  // injected <script src="/gasa-enhance.js"> exercises the real JS in-browser.
-  if (creq.url.split("?")[0] === "/gasa-enhance.js") {
-    fs.readFile(JS_FILE, (err, data) => {
+  // Serve the design assets locally (mirrors the jsDelivr /assets path used in
+  // production), so injected <img src="/gasa-assets/..."> resolves in preview.
+  const reqPath = creq.url.split("?")[0];
+  if (reqPath.startsWith("/gasa-assets/")) {
+    const rel = reqPath.slice("/gasa-assets/".length).replace(/\.\.+/g, "");
+    const file = path.join(ASSETS_DIR, rel);
+    fs.readFile(file, (err, data) => {
       if (err) {
         cres.writeHead(404, { "content-type": "text/plain" });
-        cres.end("gasa-enhance.js not found: " + err.message);
+        cres.end("asset not found: " + rel);
       } else {
-        cres.writeHead(200, { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-store" });
+        cres.writeHead(200, { "content-type": MIME[path.extname(file).toLowerCase()] || "application/octet-stream", "cache-control": "no-store" });
+        cres.end(data);
+      }
+    });
+    return;
+  }
+
+  // Serve the local enhancement script + injected section markup directly
+  // (re-read each request), mirroring the production loader on jsDelivr.
+  if (reqPath === "/gasa-enhance.js" || reqPath === "/gasa-sections.html") {
+    const f = reqPath === "/gasa-enhance.js" ? JS_FILE : path.join(__dirname, "..", "gasa-sections.html");
+    const type = reqPath === "/gasa-enhance.js" ? "application/javascript; charset=utf-8" : "text/html; charset=utf-8";
+    fs.readFile(f, (err, data) => {
+      if (err) {
+        cres.writeHead(404, { "content-type": "text/plain" });
+        cres.end(reqPath + " not found: " + err.message);
+      } else {
+        cres.writeHead(200, { "content-type": type, "cache-control": "no-store" });
         cres.end(data);
       }
     });

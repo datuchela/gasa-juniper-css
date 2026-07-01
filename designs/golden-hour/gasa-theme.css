@@ -1,0 +1,482 @@
+@import url('https://fonts.googleapis.com/css2?family=Michroma&family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+/* ============================================================================
+   GASA — "Golden Hour" (Option 1A) theme for www.gasa.ge
+   Juniper Booking Engine retheme. Injected CSS, layered AFTER main.min.css,
+   applied SITE-WIDE; built + previewed on the HOME page.
+
+   Source of truth: the owner's Claude Design export ("Gasa Homepage.dc.html",
+   Option 1A — Golden Hour) and its design-system tokens (colors/effects/fonts).
+   Character: cinematic, photography-forward, premium. Deep-navy foundation,
+   sky-blue accents, and a sparing GOLDEN-HOUR amber (#f6a417) reserved for the
+   primary search action and highlights over imagery. Michroma display (a free
+   stand-in for the brand's "Good Times"); Noto Sans / Noto Sans Georgian for UI.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   1. TOKENS  (mirrors the design-system tokens; platform HSL parts overridden
+   so the engine's own calc()-derived hover/border/focus shades follow suit.)
+   --------------------------------------------------------------------------- */
+:root {
+  /* --- Brand blue scale --- */
+  --blue-950: #07152d;
+  --blue-900: #0a1c44;   /* PRIMARY */
+  --blue-800: #132259;
+  --blue-600: #182877;
+  --blue-500: #1f3689;
+  --blue-400: #224493;
+  --blue-200: #89c6ff;   /* sky */
+  --blue-100: #d3e6ff;
+  --blue-50:  #eef5ff;
+
+  /* --- Neutrals --- */
+  --gray-50:  #f5f6f8;
+  --gray-100: #eaeaeb;
+  --gray-200: #d5d6d6;
+  --gray-400: #8b93a7;
+  --gray-500: #5b6786;
+  --gray-700: #2b3556;
+
+  /* --- Golden-hour amber (sparing: search + promo/price over imagery) --- */
+  --gold-500: #f6a417;
+  --gold-400: #ffbe3d;
+  --gold-600: #d9860a;
+  --on-gold:  #07152d;
+
+  /* --- Semantic --- */
+  --text-strong: var(--blue-950);
+  --text-body: #16224a;
+  --text-muted: var(--gray-500);
+  --text-inverse: #ffffff;
+  --text-inverse-muted: #a9b7d8;
+  --sky-copy: #cdd9f2;      /* light body text over navy imagery */
+
+  /* --- Effects --- */
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 2px 6px rgba(10, 28, 68, 0.08);
+  --shadow-md: 0 8px 20px rgba(10, 28, 68, 0.10);
+  --shadow-lg: 0 18px 40px rgba(10, 28, 68, 0.14);
+  --shadow-xl: 0 30px 70px rgba(7, 21, 45, 0.22);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --gasa-font-display: "Michroma", "Noto Sans Georgian", sans-serif;
+  --gasa-font-ui: "Noto Sans", "Noto Sans Georgian", system-ui, -apple-system, Arial, sans-serif;
+
+  /* left-heavy cinematic scrim (design 1A hero) */
+  --gasa-hero-scrim: linear-gradient(90deg, rgba(7,21,45,0.92) 0%, rgba(7,21,45,0.64) 44%, rgba(7,21,45,0.10) 100%);
+  --gasa-photo-scrim: linear-gradient(0deg, rgba(7,21,45,0.80) 0%, rgba(7,21,45,0.06) 60%);
+
+  /* ---- Platform HSL-part overrides ---- */
+  --primary-color-h: 221; --primary-color-s: 75%; --primary-color-l: 15%;   /* navy */
+  --secondary-color-h: 222; --secondary-color-s: 62%; --secondary-color-l: 35%; /* blue-400 */
+  --secondary-color-text-h: 0; --secondary-color-text-s: 0%; --secondary-color-text-l: 100%;
+  --accent-color-h: 209; --accent-color-s: 100%; --accent-color-l: 77%;      /* sky */
+  --accent-color-text-h: 221; --accent-color-text-s: 75%; --accent-color-text-l: 15%;
+  --focus-color-default-h: 209; --focus-color-default-s: 70%; --focus-color-default-l: 55%;
+  --input-border-focus: rgba(137, 198, 255, 0.65);
+
+  --border-radius: 12px;
+  --border-radius-default: 12px;
+  --border-radius-big: 14px;
+  --border-radius-xbig: 18px;
+  --border-radius-xxbig: 22px;
+
+  --font-family: "Noto Sans", "Noto Sans Georgian", Arial, Verdana, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   2. BASE / GLOBAL
+   --------------------------------------------------------------------------- */
+body {
+  font-family: var(--gasa-font-ui);
+  color: var(--text-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--blue-200); color: var(--blue-950); }
+
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, [tabindex]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(137, 198, 255, 0.55);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--gray-100); }
+::-webkit-scrollbar-thumb { background: var(--blue-900); border-radius: 20px; border: 3px solid var(--gray-100); }
+::-webkit-scrollbar-thumb:hover { background: var(--blue-400); }
+
+/* Michroma display face for major headings + prices + stat/kicker numerals */
+.title,
+.benefits__title,
+.benefits__title h2,
+.topdestinations__title__text,
+.footer__title,
+.card__price-amount,
+.product-option__price-amount,
+.gasa-hero-copy__title {
+  font-family: var(--gasa-font-display);
+  letter-spacing: 0.005em;
+}
+
+/* ---------------------------------------------------------------------------
+   3. HEADER + top utility bar + primary nav
+   --------------------------------------------------------------------------- */
+.main-header {
+  background: #ffffff;
+  box-shadow: 0 1px 0 var(--gray-100), 0 6px 20px rgba(7, 21, 45, 0.04);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.top-row { font-size: 0.82rem; }
+.upper-menu__check-booking-button,
+.upper-menu__phone-wrapper,
+.currency-selector,
+.language-btn { color: var(--gray-700); transition: color 0.15s var(--ease-standard); }
+.upper-menu__check-booking-button:hover,
+.upper-menu__phone-wrapper:hover a,
+.language-btn:hover { color: var(--blue-900); }
+
+/* Login = outlined pill ("Sign in" in 1A) */
+.upper-menu__login-button,
+.upper-menu__login-button a,
+.upper-menu__login-button button {
+  color: var(--blue-900);
+  font-weight: 700;
+}
+
+/* Primary nav — pill links, muted default, navy + soft-blue fill on hover */
+.menu.nav.navbar-nav > li > a {
+  font-family: var(--gasa-font-ui);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--gray-500);
+  border-radius: var(--radius-pill);
+  padding-inline: 15px;
+  transition: color 0.15s var(--ease-standard), background 0.15s var(--ease-standard);
+}
+.menu.nav.navbar-nav > li > a:hover { color: var(--blue-900); background: var(--blue-50); }
+
+/* Active item: platform paints a white fill — turn it into a soft-blue pill */
+.menu.nav.navbar-nav > li.active > a {
+  background: var(--blue-50) !important;
+  color: var(--blue-900) !important;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+/* ---------------------------------------------------------------------------
+   4. HERO  — cinematic: left-heavy navy scrim over the carousel, left-aligned
+   white headline (injected), and the floating search card.
+   --------------------------------------------------------------------------- */
+#home-top { position: relative; }
+
+/* Exact 1A hero photo (injected), covering the platform carousel */
+.gasa-hero-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-size: cover;
+  background-position: center 42%;
+  pointer-events: none;
+}
+
+/* Left-to-right navy scrim for legible white copy (1A hero treatment) */
+#home-top::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: var(--gasa-hero-scrim);
+}
+
+/* Injected hero copy (gasa-enhance.js) — left-aligned over the dark side */
+.gasa-hero-copy {
+  position: absolute;
+  z-index: 3;
+  top: clamp(110px, 15vh, 200px);
+  left: max(24px, calc((100vw - 1120px) / 2));
+  right: auto;
+  width: min(620px, 86vw);
+  text-align: left;
+  pointer-events: none;
+  animation: gasa-rise 0.85s var(--ease-out) both;
+}
+.gasa-hero-copy__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--gasa-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.20em;
+  font-size: 0.72rem;
+  color: var(--blue-200);
+  margin: 0 0 18px;
+}
+/* spark motif is provided by the injected .gasa-spark span (sky, per 1A) */
+.gasa-hero-copy__title {
+  font-family: var(--gasa-font-display);
+  color: #ffffff;
+  font-size: clamp(2rem, 4.4vw, 3.6rem);
+  line-height: 1.06;
+  letter-spacing: 0.01em;
+  margin: 0 0 20px;
+  text-wrap: balance;
+}
+.gasa-hero-copy__sub {
+  font-family: var(--gasa-font-ui);
+  font-weight: 500;
+  color: var(--sky-copy);
+  font-size: clamp(0.95rem, 1.3vw, 1.18rem);
+  line-height: 1.55;
+  max-width: 34ch;
+  margin: 0;
+}
+@keyframes gasa-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 860px) { .gasa-hero-copy { display: none; } }
+
+/* Floating search card — white, deeply rounded, big cool shadow */
+.home-searcher.searcher--floating,
+.home-searcher.searcher--floating .multi-searcher { z-index: 4; }
+.home-searcher.searcher--floating .multi-searcher__content,
+.home-searcher.searcher--floating .multi-searcher {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(7, 21, 45, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Tabs — active = navy ink + navy underline */
+.multi-searcher__tabs a,
+.multi-searcher__tabs [role="tab"] {
+  font-weight: 600;
+  color: var(--gray-500);
+  transition: color 0.15s var(--ease-standard);
+}
+.multi-searcher__tabs a[aria-selected="true"],
+.multi-searcher__tabs .active > a,
+.multi-searcher__tabs li.active a {
+  color: var(--blue-900) !important;
+  font-weight: 700;
+}
+
+.multi-searcher__content label,
+.multi-searcher__content .label {
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--gray-500);
+  font-size: 0.7rem;
+}
+.multi-searcher__content .form-control,
+.multi-searcher__content input,
+.multi-searcher__content select,
+.multi-searcher__content .selectric,
+.multi-searcher__content .dropdown-toggle,
+.multi-searcher__content .room-selector-button {
+  border-radius: var(--radius-md) !important;
+  border: 1.5px solid var(--gray-200);
+  transition: border-color 0.15s var(--ease-standard), box-shadow 0.15s var(--ease-standard);
+}
+.multi-searcher__content .form-control:focus,
+.multi-searcher__content input:focus,
+.multi-searcher__content select:focus {
+  border-color: var(--blue-200);
+  box-shadow: 0 0 0 3px rgba(137, 198, 255, 0.35);
+}
+
+/* ---------------------------------------------------------------------------
+   5. BUTTONS
+   Primary (booking flow) = navy pill. Search = GOLDEN-HOUR amber. Login = outline.
+   --------------------------------------------------------------------------- */
+.btn {
+  font-family: var(--gasa-font-ui);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border-radius: var(--radius-pill);
+  transition: transform 0.15s var(--ease-out), box-shadow 0.15s var(--ease-standard),
+    background 0.15s var(--ease-standard), filter 0.15s var(--ease-standard);
+}
+
+.btn-primary {
+  background: var(--blue-900);
+  border: none;
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--blue-800);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary:active { transform: translateY(0); }
+
+/* THE signature: the main Search button in amber */
+.btn.searcher-button,
+.searcher-button.btn-primary {
+  background: var(--gold-500) !important;
+  color: var(--on-gold) !important;
+  border: none !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(246, 164, 23, 0.34);
+}
+.btn.searcher-button:hover,
+.searcher-button.btn-primary:hover {
+  background: var(--gold-400) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(246, 164, 23, 0.42);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1.5px solid var(--gray-200);
+  color: var(--blue-900);
+}
+.btn-secondary:hover {
+  border-color: var(--blue-900);
+  background: var(--blue-900);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* ---------------------------------------------------------------------------
+   6. REPLACED PLATFORM SECTIONS
+   The live "Special travel offers" and "Benefits & Values" rows are replaced by
+   the injected 1A sections (#gasa-exact), so hide the originals.
+   --------------------------------------------------------------------------- */
+.sliding-offers-v5,
+.home-row:has(.sliding-offers-v5),
+.home-row:has(.benefits) { display: none !important; }
+
+/* ---------------------------------------------------------------------------
+   7. INJECTED 1A SECTIONS  (#gasa-exact — stats, deals, bento, packages,
+   why-GASA, CTA). The markup is fully inline-styled (verbatim from the design),
+   so this only supplies the four-point spark motif, the hover states, and a
+   light reset so platform base rules don't bleed into the injected tree.
+   --------------------------------------------------------------------------- */
+:root {
+  --spark-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 0 C54 34 66 46 100 50 C66 54 54 66 50 100 C46 66 34 54 0 50 C34 46 46 34 50 0 Z'/%3E%3C/svg%3E");
+}
+.gasa-spark {
+  display: inline-block;
+  width: 1em; height: 1em;
+  background: currentColor;
+  -webkit-mask: var(--spark-mask) center / contain no-repeat;
+  mask: var(--spark-mask) center / contain no-repeat;
+}
+
+/* Michroma has no clean € glyph — render the euro sign in the UI face so the
+   Michroma price numerals stay sharp but the currency reads correctly. */
+.gasa-eur { font-family: var(--gasa-font-ui); font-weight: 700; }
+
+#gasa-exact { position: relative; z-index: 1; background: #fff; }
+#gasa-exact *, #gasa-exact *::before, #gasa-exact *::after { box-sizing: border-box; }
+#gasa-exact a { text-decoration: none; }
+#gasa-exact h1, #gasa-exact h2, #gasa-exact h3, #gasa-exact p { margin: 0; }
+#gasa-exact img { max-width: none; }
+
+/* hover states (from the design's <style> block), scoped to the injected tree */
+#gasa-exact .g-deal { transition: transform 0.22s var(--ease-out), box-shadow 0.22s var(--ease-out); }
+#gasa-exact .g-deal:hover { transform: translateY(-4px); box-shadow: 0 22px 46px rgba(7, 21, 45, 0.18); }
+#gasa-exact .g-tile-img { transition: transform 0.5s var(--ease-out); }
+#gasa-exact .g-tile:hover .g-tile-img { transform: scale(1.06); }
+#gasa-exact .g-btn-gold:hover { background: var(--gold-400) !important; }
+#gasa-exact .g-btn-primary:hover { background: var(--blue-800) !important; }
+#gasa-exact .g-nav-link:hover { color: var(--blue-900) !important; background: var(--blue-50) !important; }
+#gasa-exact .g-chip:hover { background: var(--blue-100) !important; }
+#gasa-exact .g-link:hover { color: #fff !important; }
+
+/* ---------------------------------------------------------------------------
+   8. FOOTER  — deep navy #07152d, muted slate links → white (1A footer)
+   --------------------------------------------------------------------------- */
+footer.main-footer,
+footer.main-footer--light {
+  background: var(--blue-950);
+  color: var(--text-inverse-muted);
+  border-top: none;
+}
+footer.main-footer a,
+footer.main-footer .footer__text a,
+footer.main-footer li a {
+  color: var(--text-inverse-muted);
+  transition: color 0.15s var(--ease-standard);
+}
+footer.main-footer a:hover,
+footer.main-footer li a:hover { color: #ffffff; text-decoration: none; }
+footer.main-footer .footer__title {
+  font-family: var(--gasa-font-display);
+  color: #ffffff;
+  font-size: 0.92rem;
+  letter-spacing: 0.03em;
+  position: relative;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+}
+footer.main-footer .footer__title::after {
+  content: "";
+  position: absolute; left: 0; bottom: 0;
+  width: 34px; height: 3px;
+  background: var(--blue-200);
+  border-radius: 3px;
+}
+footer.main-footer .footer__text,
+footer.main-footer p,
+footer.main-footer span,
+footer.main-footer label { color: var(--text-inverse-muted); }
+footer.main-footer input[type="text"],
+footer.main-footer .form-control {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-radius: var(--radius-md);
+}
+footer.main-footer input::placeholder { color: rgba(255, 255, 255, 0.45); }
+footer.main-footer input:focus {
+  border-color: var(--blue-200);
+  box-shadow: 0 0 0 3px rgba(137, 198, 255, 0.22);
+}
+footer.main-footer .footer-bottom,
+footer.main-footer .footer-bottom__text {
+  color: rgba(255, 255, 255, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+.footer-action__content.btn-go-top,
+.footer-action__content { color: var(--blue-200); }
+
+/* ---------------------------------------------------------------------------
+   9. BRAND GUARD — keep WhatsApp / green comms green (#25D366)
+   --------------------------------------------------------------------------- */
+.upper-menu__whatsapp-wrapper,
+.upper-menu__whatsapp-wrapper a,
+[class*="whatsapp"]:not(.modal):not(.modal *) { color: #25D366; }
+.whatsapp-float, .btn-whatsapp,
+a[href*="wa.me"], a[href*="whatsapp"] {
+  background-color: #25D366 !important;
+  color: #fff !important;
+}
+
+/* ---------------------------------------------------------------------------
+   10. MISC
+   --------------------------------------------------------------------------- */
+a { transition: color 0.15s var(--ease-standard); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, .gasa-hero-copy,
+  .sliding-offers-v5 article.thumbnail,
+  .sliding-offers-v5 .sliding-offers__image-holder img {
+    animation: none !important;
+    transition: none !important;
+  }
+}

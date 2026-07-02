@@ -40,6 +40,9 @@ there.
   `https://cdn.jsdelivr.net/gh/datuchela/gasa-juniper-css@main/gasa-theme.css`
   Purge after pushing:
   `https://purge.jsdelivr.net/gh/datuchela/gasa-juniper-css@main/gasa-theme.css`
+- **Live = whatever is pushed to `main`** (the loader points at jsDelivr `@main`), so the repo
+  and local commits may be ahead of the live site. Shipping = commit + push + purge; never
+  push without the owner's go-ahead.
 
 ## Repo layout
 - `gasa-theme.css` — the theme (single stylesheet, no build step). Site-wide: `:root` token
@@ -125,12 +128,6 @@ An LLM-maintained knowledge wiki about the Juniper Booking Engine lives at
 `/home/datucha/Documents/obsidian/juniper` (Obsidian Markdown vault). Start at `index.md`,
 then `wiki/entities/` (`website.md`, `website-content-management.md`, …), `wiki/concepts/`,
 `wiki/sources/`; `raw/` holds the original Juniper EDocs. **Reference only — do not modify.**
-
-## Git / live state
-Last commit (`48924c2` "Retheme to GASA brandbook…") is an **older navy theme**, so
-**jsDelivr `@main` currently serves that** — not the working-tree files. Recent work is
-uncommitted. Don't `git push` without the owner's go-ahead. (Un-styling the live site would
-require committing a blank theme + pushing + purging jsDelivr.)
 
 ## When a design is ready to ship
 1. Re-implement the design in `gasa-theme.css` (+ `gasa-enhance.js` for DOM work), site-wide.

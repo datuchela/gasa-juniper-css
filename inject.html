@@ -1,0 +1,23 @@
+<!--
+  GASA theme loader — paste the <script> block below into the Juniper CMS
+  content block (Master/Footer Description field, in HTML source mode).
+
+  It stays BRACE-FREE (no { } < > in the script body) so the CMS WYSIWYG does
+  not mangle it. At runtime it appends the jsDelivr-hosted theme + enhancer:
+    - the <link> goes into <head>, so it loads AFTER the platform's
+      main.min.css and wins by source order.
+    - the <script> loads gasa-enhance.js (the DOM layer).
+
+  It points at @main, so PUSH the branch first, then purge the CDN:
+    https://purge.jsdelivr.net/gh/datuchela/gasa-juniper-css@main/gasa-theme.css
+    https://purge.jsdelivr.net/gh/datuchela/gasa-juniper-css@main/gasa-enhance.js
+-->
+<script>
+var gasaCss=document.createElement('link');
+gasaCss.rel='stylesheet';
+gasaCss.href='https://cdn.jsdelivr.net/gh/datuchela/gasa-juniper-css@main/gasa-theme.css';
+document.head.appendChild(gasaCss);
+var gasaJs=document.createElement('script');
+gasaJs.src='https://cdn.jsdelivr.net/gh/datuchela/gasa-juniper-css@main/gasa-enhance.js';
+document.body.appendChild(gasaJs);
+</script>

@@ -317,12 +317,14 @@ body#home #home-top .home-carousel .item img,
 body#packages #home-top .home-carousel .item img {
   visibility: hidden;
 }
-/* Dark gradient scrim over the carousel so white text reads */
+/* Hero overlay — a gentle navy veil, lighter than the reference so the photo
+   stays bright/vibrant while keeping a soft top haze for the nav and enough
+   bottom contrast for the search card (darkest 0% band sits behind the card). */
 body#home #home-top .home-carousel::after,
 body#packages #home-top .home-carousel::after {
   content: "";
   position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(5,10,20,0.82) 0%, rgba(5,10,20,0.35) 45%, rgba(5,10,20,0.12) 70%, rgba(5,10,20,0.45) 100%);
+  background: linear-gradient(to top, rgba(5,10,20,0.7) 0%, rgba(5,10,20,0.22) 45%, rgba(5,10,20,0.08) 70%, rgba(5,10,20,0.28) 100%);
   z-index: 3;
   pointer-events: none;
 }

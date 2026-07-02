@@ -1,33 +1,654 @@
 /* ============================================================================
    GASA — Juniper Booking Engine retheme for www.gasa.ge
-   Same platform, injected CSS layered AFTER the platform's main.min.css.
+   Injected AFTER the platform's main.min.css. Implements the handed-over
+   "GASA — Premium Travel Experiences" landing design (gasa-full-landing-12.html).
 
-   CLEAN SLATE — build the handed-over design here (full re-skin, not a light
-   touch: discard the platform's default look). See CLAUDE.md for full context.
+   Layout of this file:
+     1. Font imports + design tokens (+ platform HSL-token overrides → navy)
+     2. Base typography
+     3. Landing header/nav → transparent over the hero  (scoped to #home/#packages)
+     4. Hero (#home-top carousel) + injected Greece caption
+     5. The real Juniper searcher, restyled into the design's white card
+     6. Injected design sections (features, offers, IG grid, reviews, benefits)
+     7. Injected design footer
+     8. Responsive
 
-   CONVENTIONS
-   -----------
-   - Applied SITE-WIDE (no per-page scope) — preview on the HOME page. Put the
-     design-token overrides in the `:root { … }` block below; our stylesheet
-     loads after the platform's, so these win by source order. Write component
-     rules unprefixed. (If you ever need a page-specific tweak, page bodies carry
-     ids like `#home` / `#packages` and share a `.home` template class.)
-   - Override the platform's HSL-PART tokens (--primary-color-h/s/l,
-     --secondary-color-*, --accent-color-*, --dark-*, --border-radius-*, --font-*)
-     so the platform's own calc()-derived hover/border/focus shades recompute
-     on-brand. Inspect current values in /resources/<HASH>/dist/css/main.min.css.
-   - Keep the footer / WhatsApp button green (#25D366).
-
-   BRAND (GASA brandbook)
-   ----------------------
-   Deep Blue #0a1c44 (primary) · brights #182877 / #224493 (sparingly) ·
-   sky #89c6ff · #07152d instead of black · neutrals #eaeaeb / #d5d6d6 ·
-   display font "Good Times" (substitute any suitable free web font if unlicensed) ·
-   warm travel photography (do not recolor).
+   Companion DOM work (remove platform marketing, inject the sections above,
+   overlay the hero caption, wire the reviews slider) lives in gasa-enhance.js.
+   Brand: deep navy + sky blue; the design adds gold/terracotta accents and a
+   Cormorant Garamond display face (owner-approved). WhatsApp stays green.
    ============================================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* ── 1. Tokens ─────────────────────────────────────────────────────────────── */
 :root {
-  /* Design-token overrides go here. */
+  /* Design palette */
+  --gasa-black: #111110;
+  --gasa-white: #ffffff;
+  --gasa-offwhite: #f5f4f1;
+  --gasa-cream: #f0ede8;
+  --gasa-border: #e2ddd7;
+  --gasa-muted: #8a8680;
+  --gasa-text: #2c2b29;
+  --gasa-text-light: #6b6865;
+  --gasa-navy: #0B1F3A;
+  --gasa-navy-light: #16284a;
+  --gasa-blue: #1B2A6B;      /* search-button blue */
+  --gasa-blue-dark: #0F1B4D;
+  --gasa-gold: #C8952A;
+  --gasa-gold-light: #E8C97A;
+  --gasa-terracotta: #C0512F;
+  --gasa-sky: #1C4C8F;
+
+  --gasa-serif: 'Cormorant Garamond', Georgia, 'Noto Serif Georgian', serif;
+  --gasa-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Georgian', sans-serif;
+
+  /* Platform HSL-part overrides — recolor the engine's own derived shades.
+     Primary was red hsl(0,100%,42%); retarget to navy + gold accent. */
+  --primary-color-h: 229;
+  --primary-color-s: 60%;
+  --primary-color-l: 26%;
+  --secondary-color-h: 215;
+  --secondary-color-s: 68%;
+  --secondary-color-l: 14%;
+  --accent-color-h: 41;
+  --accent-color-s: 65%;
+  --accent-color-l: 47%;
+  --dark-blue-h: 229;
+  --dark-blue-s: 60%;
+  --dark-blue-l: 26%;
 }
 
-/* Component styles go here. */
+/* ── 2. Base typography ────────────────────────────────────────────────────── */
+body[data-gasa] {
+  font-family: var(--gasa-sans);
+}
+
+/* Hide the platform footer on the landing templates — the design ships its own
+   (.footer-v2). Hidden (not removed) so its live form controls stay in the DOM. */
+body#home > #aspnetForm > .main-footer,
+body#packages > #aspnetForm > .main-footer,
+body#home .main-footer.main-footer--defaultcontact,
+body#packages .main-footer.main-footer--defaultcontact {
+  display: none !important;
+}
+
+/* ============================================================================
+   3. LANDING HEADER / NAV — transparent, over the hero
+   Only on the landing templates (#home / #packages) which carry the hero.
+   Other pages keep the platform header intact.
+   ============================================================================ */
+body#home #main-header,
+body#packages #main-header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 60;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+/* Hero rises to the very top, behind the now-absolute header. */
+body#home #home-top,
+body#packages #home-top {
+  margin-top: 0;
+}
+
+/* Hide every platform landing section except the hero — the design ships its own
+   content (#gasa-sections). Keeps the searcher (nested inside #home-top) and our
+   injected div intact. */
+body#home .home-v3 > section:not(#home-top),
+body#packages .home-v3 > section:not(#home-top),
+body#home .home-v3 > div.home-row,
+body#packages .home-v3 > div.home-row,
+body#home #home-sliding-promo_v3,
+body#packages #home-sliding-promo_v3,
+body#home [id^="home-content"]:not(#home-top),
+body#packages [id^="home-content"]:not(#home-top) {
+  display: none !important;
+}
+
+/* White out header text/links/icons over the dark hero */
+body#home #main-header,
+body#packages #main-header,
+body#home #main-header a,
+body#packages #main-header a,
+body#home #main-header .menu.nav.navbar-nav > li > a,
+body#packages #main-header .menu.nav.navbar-nav > li > a,
+body#home #main-header .btn,
+body#packages #main-header .btn {
+  color: #fff !important;
+}
+/* Whiten the platform logo (monochrome invert) over the hero */
+body#home #main-header .logo img,
+body#packages #main-header .logo img {
+  filter: brightness(0) invert(1);
+}
+/* Single-row header: logo | nav (left) | ...spacer... | utilities (right).
+   gasa-enhance.js moves #main-menu to sit right after the logo. */
+body#home .main-header .top-row,
+body#packages .main-header .top-row {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-start !important;   /* platform default spreads items apart */
+  flex-wrap: nowrap;
+  padding-top: 18px;   /* nudge the whole header row down */
+}
+/* Platform gives the logo a huge margin-right that spreads the row apart */
+body#home .top-row #logoWrapper,
+body#packages .top-row #logoWrapper {
+  margin-right: 40px !important;
+}
+body#home #main-menu,
+body#packages #main-menu {
+  margin: 0 0 0 0 !important;
+  position: static !important;
+  top: auto !important;
+  float: none !important;
+}
+body#home #main-menu .navbar,
+body#packages #main-menu .navbar,
+body#home #main-menu .navbar-collapse,
+body#packages #main-menu .navbar-collapse {
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+/* Push the utility bar (currency / lang / login) to the right */
+body#home .top-row .d-flex-right.sm_fix,
+body#packages .top-row .d-flex-right.sm_fix {
+  margin-left: auto !important;
+  display: flex;
+  align-items: center;
+}
+/* Drop WhatsApp + phone from the header; the original Check-booking button too
+   (it now lives in the left nav as .gasa-checkbooking). */
+body#home .top-row .upper-menu__phone-wrapper,
+body#packages .top-row .upper-menu__phone-wrapper,
+body#home .top-row button[data-target="#whatsapp-modal"],
+body#packages .top-row button[data-target="#whatsapp-modal"],
+body#home .top-row a.upper-menu__check-booking-button,
+body#packages .top-row a.upper-menu__check-booking-button {
+  display: none !important;
+}
+
+/* Nav links: uppercase, spaced, underline the active item (platform gives the
+   active link a white fill — replace that with the design's underline) */
+body#home #main-header .menu.nav.navbar-nav > li > a,
+body#packages #main-header .menu.nav.navbar-nav > li > a {
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+body#home #main-header .menu.nav.navbar-nav > li.active > a,
+body#packages #main-header .menu.nav.navbar-nav > li.active > a {
+  background: transparent !important;
+  color: #fff !important;
+  border-bottom: 1.5px solid #fff;
+}
+/* Right utilities → minimal "EUR ⌄  |  EN ⌄  |  [ SIGN IN ]" like the design.
+   Currency + language: borderless white text with a chevron. Login: outline pill. */
+body#home #main-header .currency-selector .dropdown-toggle,
+body#packages #main-header .currency-selector .dropdown-toggle,
+body#home #main-header .language-btn,
+body#packages #main-header .language-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-size: 12px !important;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 6px 8px !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 5px;
+}
+/* Drop platform carets/chevrons + the language flag; draw our own chevron */
+body#home #main-header .currency-selector .caret,
+body#packages #main-header .currency-selector .caret,
+body#home #main-header .currency-selector .dropdown-toggle .glyphicon-menu-down,
+body#packages #main-header .currency-selector .dropdown-toggle .glyphicon-menu-down,
+body#home #main-header .language-btn .caret,
+body#packages #main-header .language-btn .caret,
+body#home #main-header .language-btn img,
+body#packages #main-header .language-btn img {
+  display: none !important;
+}
+/* Chevron only on the currency dropdown; the language button is a direct toggle. */
+body#home #main-header .currency-selector .dropdown-toggle::after,
+body#packages #main-header .currency-selector .dropdown-toggle::after {
+  content: "";
+  width: 6px; height: 6px;
+  border-right: 1.5px solid rgba(255,255,255,0.85);
+  border-bottom: 1.5px solid rgba(255,255,255,0.85);
+  transform: rotate(45deg);
+  margin: -3px 0 0 4px;
+}
+/* Divider between currency and language */
+body#home #main-header .upper-menu__language-button,
+body#packages #main-header .upper-menu__language-button {
+  border-left: 1px solid rgba(255,255,255,0.3) !important;
+  margin-left: 6px;
+  padding-left: 16px !important;
+}
+/* SIGN IN pill */
+body#home #main-header .upper-menu__login-button,
+body#packages #main-header .upper-menu__login-button {
+  position: relative;
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,0.7) !important;
+  border-radius: 20px !important;
+  color: #fff !important;
+  padding: 7px 16px !important;
+  margin-left: 22px;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+}
+body#home #main-header .upper-menu__login-button:hover,
+body#packages #main-header .upper-menu__login-button:hover {
+  background: rgba(255,255,255,0.12) !important;
+}
+body#home #main-header .upper-menu__login-button .quicklink-elem-label,
+body#packages #main-header .upper-menu__login-button .quicklink-elem-label {
+  display: none !important;
+}
+body#home #main-header .upper-menu__login-button::before,
+body#packages #main-header .upper-menu__login-button::before {
+  content: "SIGN IN";
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+body#home #main-header .upper-menu__login-button .glyphicon,
+body#packages #main-header .upper-menu__login-button .glyphicon {
+  color: #fff !important;
+  font-size: 14px;
+  order: 2;   /* icon sits after the SIGN IN text */
+}
+/* Divider between language and the SIGN IN pill */
+body#home #main-header .upper-menu__login-button::after,
+body#packages #main-header .upper-menu__login-button::after {
+  content: "";
+  position: absolute;
+  left: -12px; top: 50%;
+  height: 14px; width: 1px;
+  background: rgba(255,255,255,0.3);
+  transform: translateY(-50%);
+}
+
+/* ============================================================================
+   4. HERO — platform carousel (#home-top) + injected Greece caption
+   ============================================================================ */
+/* Fixed-height hero so the caption + the overhanging search card both sit in
+   view (the platform otherwise forces a very tall slide). */
+body#home #home-top,
+body#packages #home-top {
+  position: relative;
+  height: 100vh;
+  min-height: 720px;
+  max-height: 960px;
+  overflow: visible;
+}
+body#home #home-top .home-carousel,
+body#packages #home-top .home-carousel,
+body#home #home-top .carousel-inner,
+body#packages #home-top .carousel-inner,
+body#home #home-top .home-carousel .item,
+body#packages #home-top .home-carousel .item {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+/* Force the design's Greece hero photo onto the carousel slide(s); the platform
+   promo graphic is hidden (kept in the DOM) so only our photo shows. */
+body#home #home-top .home-carousel .item,
+body#packages #home-top .home-carousel .item {
+  background-image: url('https://images.unsplash.com/photo-1530841377377-3ff06c0ca713?w=1800&q=85&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center 35%;
+}
+body#home #home-top .home-carousel .item img,
+body#packages #home-top .home-carousel .item img {
+  visibility: hidden;
+}
+/* Dark gradient scrim over the carousel so white text reads */
+body#home #home-top .home-carousel::after,
+body#packages #home-top .home-carousel::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(5,10,20,0.82) 0%, rgba(5,10,20,0.35) 45%, rgba(5,10,20,0.12) 70%, rgba(5,10,20,0.45) 100%);
+  z-index: 3;
+  pointer-events: none;
+}
+/* Hide the platform's own carousel caption/price — we supply the caption */
+body#home #home-top .carousel-caption-wrapper,
+body#packages #home-top .carousel-caption-wrapper {
+  display: none !important;
+}
+
+/* Injected caption overlay — sits in the upper-middle, clear of the bottom card */
+.gasa-hero-overlaywrap {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.gasa-hero-content {
+  pointer-events: auto;
+  max-width: 620px;
+  padding: 0 64px;
+  margin-top: 27vh;
+}
+.gasa-hero-content .hero-single-eyebrow {
+  font-size: 11px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase;
+  color: rgba(255,255,255,0.78); margin-bottom: 22px;
+}
+.gasa-hero-content .hero-single-title {
+  font-family: var(--gasa-serif);
+  font-size: 64px; font-weight: 400; line-height: 1.08;
+  color: #fff; letter-spacing: -0.5px; margin-bottom: 24px;
+}
+.gasa-hero-content .hero-single-title em { font-style: italic; color: rgba(255,255,255,0.85); }
+.gasa-hero-content .hero-single-desc {
+  font-size: 15px; font-weight: 300; color: rgba(255,255,255,0.85);
+  line-height: 1.7; max-width: 430px; margin-bottom: 36px;
+}
+.gasa-hero-content .hero-single-cta {
+  display: inline-block; background: #fff; color: var(--gasa-black);
+  padding: 15px 34px; font-size: 12px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; text-decoration: none; transition: opacity .2s;
+}
+.gasa-hero-content .hero-single-cta:hover { opacity: .85; }
+.gasa-hero-logo {
+  position: absolute; bottom: 40px; right: 64px; z-index: 6; pointer-events: none;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ============================================================================
+   5. SEARCHER — restyle the real Juniper widget into the design's white card
+   (.multi-searcher / .home-searcher — kept fully functional)
+   ============================================================================ */
+/* Push the platform's floating searcher down toward the hero bottom (it defaults
+   to ~40% height, which collides with the caption), and raise its stacking. */
+body#home #home-top .home-searcher.searcher--floating,
+body#packages #home-top .home-searcher.searcher--floating {
+  z-index: 20;
+  margin-top: 34vh;
+}
+/* The whole searcher becomes ONE white card (tabs + fields stacked inside it). */
+body#home .multi-searcher,
+body#packages .multi-searcher {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 18px 48px rgba(10,20,45,0.22);
+  margin: 0 60px;
+  position: relative;
+  z-index: 12;
+  /* no overflow:hidden — it would clip the rooms/autocomplete popups */
+}
+body#home .multi-searcher__content,
+body#packages .multi-searcher__content {
+  background: transparent !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  padding-bottom: 8px;
+}
+/* Tab strip sits at the top of the card */
+body#home .multi-searcher__tabs,
+body#packages .multi-searcher__tabs {
+  background: transparent !important;
+  border: none !important;
+  padding-top: 6px;
+}
+body#home .multi-searcher__tabs .nav-tabs,
+body#packages .multi-searcher__tabs .nav-tabs,
+body#home .multi-searcher__tabs ul.nav,
+body#packages .multi-searcher__tabs ul.nav {
+  border-bottom: 1px solid var(--gasa-border);
+  padding: 0 20px;
+}
+body#home .multi-searcher__tabs a,
+body#packages .multi-searcher__tabs a {
+  color: var(--gasa-muted) !important;
+  text-transform: uppercase;
+  font-size: 12px; font-weight: 500; letter-spacing: .8px;
+  border: none !important;
+  background: transparent !important;
+}
+body#home .multi-searcher__tabs .active a,
+body#home .multi-searcher__tabs a.active,
+body#packages .multi-searcher__tabs .active a,
+body#packages .multi-searcher__tabs a.active {
+  color: var(--gasa-black) !important;
+  border-bottom: 2px solid var(--gasa-black) !important;
+}
+/* Search submit button → design navy */
+body#home .searcher-button,
+body#packages .searcher-button,
+body#home .btn.searcher-button,
+body#packages .btn.searcher-button {
+  background: var(--gasa-blue) !important;
+  border-color: var(--gasa-blue) !important;
+  color: #fff !important;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+  border-radius: 8px !important;
+}
+body#home .searcher-button:hover,
+body#packages .searcher-button:hover { background: var(--gasa-blue-dark) !important; }
+
+/* ============================================================================
+   6. INJECTED DESIGN SECTIONS
+   These class names match the design markup produced by gasa-enhance.js, so the
+   styles below are lifted from the design almost verbatim. They only ever apply
+   to nodes we inject (unique class names), so no platform scoping is needed.
+   ============================================================================ */
+#gasa-sections { position: relative; z-index: 1; }
+#gasa-sections *, #gasa-sections *::before, #gasa-sections *::after { box-sizing: border-box; }
+#gasa-sections p { margin: 0; }
+
+/* ── Features strip ── */
+.features {
+  background: var(--gasa-offwhite);
+  padding: 56px 60px;
+  display: grid;
+  grid-template-columns: 300px 1fr 1fr 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.features-headline {
+  font-family: var(--gasa-serif);
+  font-size: 38px; font-weight: 400; line-height: 1.15;
+  color: var(--gasa-black); letter-spacing: -0.3px; margin-bottom: 16px;
+}
+.features-underline { width: 36px; height: 2px; background: var(--gasa-terracotta); margin-bottom: 16px; }
+.features-link {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--gasa-black); text-decoration: none;
+}
+.features-link svg { width: 16px; height: 16px; stroke: var(--gasa-black); fill: none; stroke-width: 1.5; transition: transform .2s; }
+.features-link:hover svg { transform: translateX(4px); }
+.feature-icon { width: 36px; height: 36px; margin-bottom: 16px; display: flex; align-items: center; }
+.feature-icon svg { width: 30px; height: 30px; stroke: var(--gasa-text); fill: none; stroke-width: 1.2; }
+.feature-name {
+  font-family: var(--gasa-sans);
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--gasa-black); margin-bottom: 8px;
+}
+.feature-desc { font-family: var(--gasa-sans); font-size: 13px; color: var(--gasa-muted); line-height: 1.65; }
+
+/* ── Special offers ── */
+.offers-section { padding: 100px 60px; background: #fff; }
+.offers-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px; gap: 40px; }
+.offers-title {
+  font-family: var(--gasa-serif);
+  font-size: 44px; font-weight: 600; color: var(--gasa-black); letter-spacing: -0.3px; white-space: nowrap;
+}
+.offers-sub { font-family: var(--gasa-sans); font-size: 14px; font-weight: 300; color: var(--gasa-text-light); text-align: right; max-width: 460px; line-height: 1.6; }
+.offers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.offer-card { cursor: pointer; }
+.offer-img { height: 380px; border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+.offer-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s ease; }
+.offer-card:hover .offer-img img { transform: scale(1.04); }
+.offer-name { font-family: var(--gasa-sans); font-size: 15px; font-weight: 700; letter-spacing: .5px; color: var(--gasa-black); text-align: center; margin-bottom: 12px; }
+.offer-desc { font-family: var(--gasa-sans); font-size: 14px; font-weight: 300; color: var(--gasa-text-light); text-align: center; line-height: 1.65; max-width: 320px; margin: 0 auto; }
+
+/* ── Instagram grid ── */
+.ig-section { padding: 100px 60px; background: var(--gasa-navy); }
+.ig-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px; }
+.ig-title { font-family: var(--gasa-serif); font-size: 44px; font-weight: 600; color: #fff; letter-spacing: -0.3px; }
+.ig-sub { font-family: var(--gasa-sans); font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.5); letter-spacing: .3px; }
+.ig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; border-radius: 12px; overflow: hidden; }
+.ig-tile { position: relative; aspect-ratio: 1/1; overflow: hidden; cursor: pointer; }
+.ig-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s ease; }
+.ig-tile:hover img { transform: scale(1.05); }
+.ig-tile-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(5,10,20,0.85) 0%, rgba(5,10,20,0.1) 45%, rgba(5,10,20,0.35) 100%); z-index: 1; }
+.ig-tile-content { position: absolute; inset: 0; z-index: 2; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; }
+.ig-tag { font-family: var(--gasa-sans); font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.7); }
+.ig-headline { font-family: var(--gasa-serif); font-size: 28px; font-weight: 600; color: #fff; line-height: 1.1; margin-top: 8px; }
+.ig-text { font-family: var(--gasa-sans); font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.7); margin-top: 10px; max-width: 200px; line-height: 1.55; }
+.ig-logo { display: flex; align-items: center; gap: 7px; }
+.ig-tile-quote { background: var(--gasa-navy-light); display: flex; flex-direction: column; justify-content: space-between; padding: 28px; }
+.ig-quote-mark { font-family: var(--gasa-serif); font-size: 56px; color: var(--gasa-gold); line-height: 1; }
+.ig-quote-text { font-family: var(--gasa-serif); font-style: italic; font-size: 19px; color: #fff; line-height: 1.4; max-width: 240px; }
+.ig-play { position: absolute; top: 16px; right: 16px; z-index: 3; width: 28px; height: 28px; background: rgba(0,0,0,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.ig-play svg { width: 12px; height: 12px; fill: #fff; }
+
+/* ── Reviews ── */
+.reviews-section { background: #fff; padding: 100px 60px; }
+.reviews-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 64px; }
+.reviews-title { font-family: var(--gasa-serif); font-size: 44px; font-weight: 600; color: var(--gasa-text); line-height: 1.1; }
+.reviews-title span { color: var(--gasa-terracotta); font-style: italic; }
+.reviews-subtitle { font-family: var(--gasa-sans); font-size: 13px; font-weight: 300; letter-spacing: .3px; color: var(--gasa-muted); margin-bottom: 10px; }
+.reviews-slider { position: relative; display: flex; align-items: center; min-height: 260px; }
+.reviews-arrow { flex-shrink: 0; width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid var(--gasa-border); background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; color: var(--gasa-text); z-index: 2; }
+.reviews-arrow:hover { border-color: var(--gasa-navy); color: var(--gasa-navy); }
+.reviews-arrow svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+.reviews-stage { flex: 1; overflow: hidden; padding: 0 64px; }
+.reviews-viewport { position: relative; width: 100%; }
+.review-slide { display: none; flex-direction: column; gap: 32px; animation: gasaFadeSlide .4s ease; max-width: 800px; margin: 0 auto; }
+.review-slide.active { display: flex; }
+@keyframes gasaFadeSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.review-quote { font-family: var(--gasa-serif); font-size: 28px; font-weight: 400; line-height: 1.55; color: var(--gasa-text); }
+.review-quote::before { content: '“'; font-family: var(--gasa-serif); }
+.review-quote::after { content: '”'; font-family: var(--gasa-serif); }
+.review-person { display: flex; align-items: center; gap: 16px; }
+.review-avatar-circle { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--gasa-navy) 0%, var(--gasa-sky) 100%); display: flex; align-items: center; justify-content: center; font-family: var(--gasa-sans); font-size: 17px; font-weight: 600; color: #fff; flex-shrink: 0; }
+.review-person-name { font-family: var(--gasa-sans); font-size: 15px; font-weight: 500; color: var(--gasa-text); margin-bottom: 3px; }
+.review-person-dest { font-family: var(--gasa-sans); font-size: 13px; font-weight: 300; color: var(--gasa-muted); letter-spacing: .3px; }
+.reviews-progress { margin-top: 48px; height: 3px; background: var(--gasa-border); border-radius: 2px; max-width: 800px; margin-left: auto; margin-right: auto; position: relative; overflow: hidden; }
+.reviews-progress-fill { height: 100%; background: var(--gasa-navy); border-radius: 2px; transition: width .4s ease; }
+
+/* ── Benefits & Values ── */
+.benefits-values { padding: 100px 60px; background: var(--gasa-offwhite); }
+.bv-title { font-family: var(--gasa-serif); font-size: 44px; font-weight: 600; color: var(--gasa-black); letter-spacing: -0.3px; margin-bottom: 48px; }
+.bv-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
+.bv-img { border-radius: 12px; overflow: hidden; min-height: 620px; }
+.bv-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bv-list { display: flex; flex-direction: column; gap: 40px; }
+.bv-icon { width: 52px; height: 52px; background: var(--gasa-navy); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+.bv-icon svg { width: 24px; height: 24px; stroke: #fff; fill: none; stroke-width: 1.5; }
+.bv-name { font-family: var(--gasa-sans); font-size: 17px; font-weight: 700; color: var(--gasa-black); margin-bottom: 8px; }
+.bv-desc { font-family: var(--gasa-sans); font-size: 14px; font-weight: 300; color: var(--gasa-text-light); line-height: 1.7; max-width: 460px; }
+
+/* ============================================================================
+   7. INJECTED FOOTER (.footer-v2)
+   ============================================================================ */
+.footer-v2 { background: var(--gasa-navy); padding: 48px 60px 0; font-family: var(--gasa-sans); }
+.footer-v2 * { box-sizing: border-box; }
+.footer-v2 .fv2-top { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1.4fr 1.2fr; gap: 40px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); align-items: start; }
+.footer-v2 .fv2-brand-logo { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; text-decoration: none; }
+.footer-v2 .fv2-brand-tagline { font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.45); line-height: 1.6; max-width: 220px; margin: 0; }
+.footer-v2 .fv2-col h4 { font-size: 10px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; color: rgba(255,255,255,0.45); margin: 0 0 14px; }
+.footer-v2 .fv2-col ul { list-style: none; padding: 0; margin: 0; }
+.footer-v2 .fv2-col ul li { margin-bottom: 8px; }
+.footer-v2 .fv2-col ul a { font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.75); text-decoration: none; transition: color .2s; }
+.footer-v2 .fv2-col ul a:hover { color: #fff; }
+.footer-v2 .fv2-address { font-size: 14px; font-weight: 300; color: rgba(255,255,255,0.75); line-height: 1.65; margin: 0 0 12px; }
+.footer-v2 .fv2-phone-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.footer-v2 .fv2-phone { font-size: 14px; color: rgba(255,255,255,0.85); text-decoration: none; }
+.footer-v2 .fv2-phone:hover { color: #fff; }
+.footer-v2 .btn-whatsapp { display: inline-flex; align-items: center; gap: 7px; background: #25D366; color: #fff; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background .2s; }
+.footer-v2 .btn-whatsapp:hover { background: #1ebe5d; }
+.footer-v2 .btn-whatsapp svg { width: 14px; height: 14px; fill: #fff; }
+.footer-v2 .fv2-social { display: flex; gap: 8px; }
+.footer-v2 .fv2-social a { width: 34px; height: 34px; background: rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+.footer-v2 .fv2-social a:hover { background: rgba(255,255,255,0.2); }
+.footer-v2 .fv2-social a svg { width: 16px; height: 16px; fill: #fff; }
+.footer-v2 .fv2-form-group { margin-bottom: 8px; }
+.footer-v2 .fv2-form-label { display: block; font-size: 11px; font-weight: 500; letter-spacing: .5px; color: rgba(255,255,255,0.45); margin-bottom: 6px; }
+.footer-v2 .fv2-form-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 12px; font-size: 13px; color: #fff; outline: none; transition: border-color .2s; }
+.footer-v2 .fv2-form-input::placeholder { color: rgba(255,255,255,0.3); }
+.footer-v2 .fv2-form-input:focus { border-color: rgba(255,255,255,0.4); }
+.footer-v2 .fv2-check-btn { width: 100%; background: #fff; color: var(--gasa-navy); border: none; border-radius: 6px; padding: 9px; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity .2s; }
+.footer-v2 .fv2-check-btn:hover { opacity: .9; }
+.footer-v2 .fv2-bottom { padding: 24px 0; display: flex; justify-content: space-between; align-items: center; }
+.footer-v2 .fv2-payments { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.35); }
+.footer-v2 .pay-icon { height: 20px; display: flex; align-items: center; background: rgba(255,255,255,0.15); color: #fff; font-size: 9px; font-weight: 700; padding: 0 7px; border-radius: 3px; letter-spacing: .5px; }
+.footer-v2 .fv2-copyright { font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.35); margin: 0; }
+.footer-v2 .fv2-totop { display: flex; align-items: center; gap: 6px; font-size: 12px; color: rgba(255,255,255,0.4); text-decoration: none; transition: color .2s; }
+.footer-v2 .fv2-totop:hover { color: rgba(255,255,255,0.7); }
+.footer-v2 .fv2-totop svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* ============================================================================
+   8. RESPONSIVE
+   ============================================================================ */
+@media (max-width: 1000px) {
+  .features { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .features > div:first-child { grid-column: span 2; }
+}
+@media (max-width: 900px) {
+  .bv-layout { grid-template-columns: 1fr; gap: 40px; }
+  .bv-img { min-height: 300px; }
+}
+@media (max-width: 768px) {
+  .gasa-hero-content { padding: 0 24px; margin-bottom: 170px; }
+  .gasa-hero-content .hero-single-title { font-size: 38px; }
+  .gasa-hero-logo { right: 24px; }
+  body#home .multi-searcher__content,
+  body#packages .multi-searcher__content { margin: -70px 16px 0; }
+
+  .features { padding: 40px 20px; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .offers-section { padding: 60px 20px; }
+  .offers-header { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 32px; }
+  .offers-title { font-size: 32px; white-space: normal; }
+  .offers-sub { text-align: left; max-width: 100%; }
+  .offers-grid { grid-template-columns: 1fr; gap: 24px; }
+  .offer-img { height: 260px; }
+  .ig-section { padding: 60px 20px; }
+  .ig-title { font-size: 32px; }
+  .ig-grid { grid-template-columns: 1fr 1fr; }
+  .ig-headline { font-size: 20px; }
+  .reviews-section { padding: 60px 20px; }
+  .reviews-title { font-size: 32px; }
+  .reviews-arrow { width: 40px; height: 40px; }
+  .reviews-stage { padding: 0 12px; }
+  .review-quote { font-size: 20px; }
+  .benefits-values { padding: 60px 20px; }
+  .bv-title { font-size: 32px; }
+  .footer-v2 { padding: 48px 20px 0; }
+  .footer-v2 .fv2-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .footer-v2 .fv2-brand-col { grid-column: span 2; }
+  .footer-v2 .fv2-bottom { flex-direction: column; gap: 12px; text-align: center; }
+}
+@media (max-width: 480px) {
+  .features { grid-template-columns: 1fr; }
+  .features > div:first-child { grid-column: span 1; }
+  .ig-grid { grid-template-columns: 1fr; }
+  .offers-title { font-size: 26px; }
+  .review-quote { font-size: 17px; }
+  .footer-v2 .fv2-top { grid-template-columns: 1fr; }
+  .footer-v2 .fv2-brand-col { grid-column: span 1; }
+}
